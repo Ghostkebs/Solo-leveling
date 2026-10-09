@@ -1,0 +1,221 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// AUTH
+// ─────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  playerProfile    PlayerProfile?
+  quests           Quest[]
+  questCompletions QuestCompletion[]
+  habits           Habit[]
+  moodEntries      MoodEntry[]
+  achievements     UserAchievement[]
+  xpTransactions   XPTransaction[]
+  notifications    SystemNotification[]
+
+  @@index([email])
+}
+
+// ─────────────────────────────────────────────
+// PLAYER PROGRESSION
+// ─────────────────────────────────────────────
+
+model PlayerProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Core progression
+  level    Int    @default(1)
+  totalXp  Int    @default(0)
+  currentXp Int   @default(0)
+  rank     String @default("E")
+
+  // Stats
+  strength     Int @default(10)
+  intelligence Int @default(10)
+  discipline   Int @default(10)
+  vitality     Int @default(10)
+  spirit       Int @default(10)
+
+  // Streaks
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  lastStreakDate DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// QUESTS
+// ─────────────────────────────────────────────
+
+enum QuestCategory {
+  BODY
+  MIND
+  DISCIPLINE
+  SPIRIT
+  PERSONAL
+}
+
+enum QuestType {
+  DAILY
+  WEEKLY
+  LONG_TERM
+  MAIN
+  SIDE
+}
+
+model Quest {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  category    QuestCategory
+  type        QuestType
+  xpReward    Int           @default(50)
+  difficulty  String        @default("Normal")
+  active      Boolean       @default(true)
+  completions QuestCompletion[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([userId, active])
+  @@index([userId, type])
+}
+
+model QuestCompletion {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questId     String
+  quest       Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
+  completedAt DateTime @default(now())
+  xpAwarded   Int
+  statChanges Json?
+
+  @@index([userId])
+  @@index([questId])
+  @@index([userId, completedAt])
+}
+
+// ─────────────────────────────────────────────
+// HABITS
+// ─────────────────────────────────────────────
+
+model Habit {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  category    QuestCategory
+  target      Int           @default(1)
+  unit        String        @default("times")
+  xpReward    Int           @default(25)
+  frequency   String        @default("DAILY")
+  active      Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([userId, active])
+}
+
+// ─────────────────────────────────────────────
+// MOOD
+// ─────────────────────────────────────────────
+
+model MoodEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mood      String
+  note      String?
+  entryDate DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, entryDate])
+}
+
+// ─────────────────────────────────────────────
+// ACHIEVEMENTS
+// ─────────────────────────────────────────────
+
+model Achievement {
+  id          String @id @default(cuid())
+  key         String @unique
+  name        String
+  description String
+  xpReward    Int    @default(0)
+
+  userAchievements UserAchievement[]
+
+  @@index([key])
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  unlockedAt    DateTime    @default(now())
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────────
+// XP LEDGER
+// ─────────────────────────────────────────────
+
+model XPTransaction {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount            Int
+  reason            String
+  questCompletionId String?
+  createdAt         DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, createdAt])
+}
+
+// ─────────────────────────────────────────────
+// SYSTEM NOTIFICATIONS
+// ─────────────────────────────────────────────
+
+model SystemNotification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, read])
+  @@index([userId, createdAt])
+}

@@ -1,0 +1,180 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 3%;
+    --foreground: 213 31% 95%;
+
+    --primary: 224 100% 58%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 270 80% 60%;
+    --secondary-foreground: 0 0% 100%;
+
+    --accent: 224 100% 58%;
+    --accent-foreground: 0 0% 100%;
+
+    --muted: 220 14% 16%;
+    --muted-foreground: 218 11% 65%;
+
+    --border: 220 20% 12%;
+    --input: 220 20% 12%;
+    --ring: 224 100% 58%;
+
+    --radius: 0.5rem;
+
+    /* Category colors */
+    --cat-body: 12 100% 60%;
+    --cat-mind: 224 100% 58%;
+    --cat-discipline: 45 100% 55%;
+    --cat-spirit: 270 80% 65%;
+    --cat-personal: 160 60% 50%;
+
+    /* Rank colors */
+    --rank-e: 220 14% 60%;
+    --rank-d: 120 40% 55%;
+    --rank-c: 40 80% 55%;
+    --rank-b: 200 80% 55%;
+    --rank-a: 270 80% 65%;
+    --rank-s: 45 100% 60%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+  }
+
+  /* Focus visible */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* System panel — dark RPG card */
+  .panel {
+    @apply bg-slate-900/60 border border-slate-800/80 rounded-lg backdrop-blur-sm;
+  }
+
+  .panel-header {
+    @apply px-4 py-3 border-b border-slate-800/80 flex items-center justify-between;
+  }
+
+  /* System label — [SYSTEM] prefix style */
+  .system-label {
+    @apply text-xs font-mono font-semibold tracking-widest text-blue-400 uppercase;
+  }
+
+  /* Glow effects */
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.25);
+  }
+
+  .glow-purple {
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.25);
+  }
+
+  /* XP bar */
+  .xp-bar-track {
+    @apply h-2 bg-slate-800 rounded-full overflow-hidden;
+  }
+
+  .xp-bar-fill {
+    @apply h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full transition-all duration-700;
+  }
+
+  /* Quest item */
+  .quest-item {
+    @apply panel p-4 transition-all duration-200;
+  }
+
+  .quest-item:hover {
+    @apply border-slate-700/80;
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.1);
+  }
+
+  .quest-item.completed {
+    @apply opacity-60 border-slate-800/40;
+  }
+
+  /* Stat bar */
+  .stat-bar-track {
+    @apply h-1.5 bg-slate-800 rounded-full overflow-hidden;
+  }
+
+  /* Rank badge */
+  .rank-badge {
+    @apply inline-flex items-center justify-center w-8 h-8 rounded font-bold text-sm;
+  }
+
+  /* System notification */
+  .system-notification {
+    @apply panel border-blue-900/50 bg-blue-950/30 px-4 py-3;
+  }
+
+  /* Category badge */
+  .category-badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium;
+  }
+}
+
+@layer utilities {
+  /* Text gradient */
+  .text-gradient-blue {
+    @apply bg-gradient-to-r from-blue-400 to-blue-200 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-purple {
+    @apply bg-gradient-to-r from-purple-400 to-purple-200 bg-clip-text text-transparent;
+  }
+
+  /* Scanline effect for RPG feel (used sparingly) */
+  .scanlines {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.05) 2px,
+      rgba(0, 0, 0, 0.05) 4px
+    );
+  }
+}
